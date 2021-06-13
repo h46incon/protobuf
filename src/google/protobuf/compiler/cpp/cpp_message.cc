@@ -1123,7 +1123,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
         "inline $classname$() : $classname$("
         "new ::$proto_ns$::Arena(), true) {}\n");
   } else {
-    format("inline $classname$() : $classname$(nullptr) {}\n");
+    format("$classname$();\n");
   }
   format(
       "~$classname$() override;\n"
@@ -1131,35 +1131,18 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
       "$classname$(::$proto_ns$::internal::ConstantInitialized);\n"
       "\n"
       "$classname$(const $classname$& from);\n"
-      "$classname$($classname$&& from) noexcept\n"
-      "  : $classname$() {\n"
-      "  *this = ::std::move(from);\n"
-      "}\n"
+      "$classname$($classname$&& from) noexcept;\n"
+
       "\n"
-      "inline $classname$& operator=(const $classname$& from) {\n"
-      "  CopyFrom(from);\n"
-      "  return *this;\n"
-      "}\n"
-      "inline $classname$& operator=($classname$&& from) noexcept {\n"
-      "  if (this == &from) return *this;\n"
-      "  if (GetOwningArena() == from.GetOwningArena()) {\n"
-      "    InternalSwap(&from);\n"
-      "  } else {\n"
-      "    CopyFrom(from);\n"
-      "  }\n"
-      "  return *this;\n"
-      "}\n"
+      "$classname$& operator=(const $classname$& from); \n"
+      "$classname$& operator=($classname$&& from) noexcept;\n"
       "\n");
 
 
   if (PublicUnknownFieldsAccessors(descriptor_)) {
     format(
-        "inline const $unknown_fields_type$& unknown_fields() const {\n"
-        "  return $unknown_fields$;\n"
-        "}\n"
-        "inline $unknown_fields_type$* mutable_unknown_fields() {\n"
-        "  return $mutable_unknown_fields$;\n"
-        "}\n"
+        "const $unknown_fields_type$& unknown_fields() const;\n"
+        "$unknown_fields_type$* mutable_unknown_fields();\n"
         "\n");
   }
 
@@ -1167,9 +1150,8 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   if (HasDescriptorMethods(descriptor_->file(), options_) &&
       !descriptor_->options().no_standard_descriptor_accessor()) {
     format(
-        "static const ::$proto_ns$::Descriptor* descriptor() {\n"
-        "  return GetDescriptor();\n"
-        "}\n");
+        "static const ::$proto_ns$::Descriptor* descriptor();\n"
+        "\n");
   }
 
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
@@ -1182,19 +1164,14 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
     // this separate also lets us track calls to the base class methods
     // separately.
     format(
-        "static const ::$proto_ns$::Descriptor* GetDescriptor() {\n"
-        "  return default_instance().GetMetadata().descriptor;\n"
-        "}\n"
-        "static const ::$proto_ns$::Reflection* GetReflection() {\n"
-        "$annotate_reflection$"
-        "  return default_instance().GetMetadata().reflection;\n"
-        "}\n");
+        "static const ::$proto_ns$::Descriptor* GetDescriptor();\n"
+        "static const ::$proto_ns$::Reflection* GetReflection();\n"
+        "\n");
   }
 
   format(
-      "static const $classname$& default_instance() {\n"
-      "  return *internal_default_instance();\n"
-      "}\n");
+      "static const $classname$& default_instance();\n"
+      "\n");
 
   // Generate enum values for every field in oneofs. One list is generated for
   // each oneof with an additional *_NOT_SET value.
@@ -1216,10 +1193,6 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
 
   // TODO(gerbens) make this private, while still granting other protos access.
   format(
-      "static inline const $classname$* internal_default_instance() {\n"
-      "  return reinterpret_cast<const $classname$*>(\n"
-      "             &_$classname$_default_instance_);\n"
-      "}\n"
       "static constexpr int kIndexInFileMessages =\n"
       "  $1$;\n"
       "\n",
@@ -1231,17 +1204,11 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
         "\n");
     if (HasDescriptorMethods(descriptor_->file(), options_)) {
       format(
-          "bool PackFrom(const ::$proto_ns$::Message& message) {\n"
-          "  return _any_metadata_.PackFrom(message);\n"
-          "}\n"
+          "bool PackFrom(const ::$proto_ns$::Message& message);\n"
           "bool PackFrom(const ::$proto_ns$::Message& message,\n"
           "              ::PROTOBUF_NAMESPACE_ID::ConstStringParam "
-          "type_url_prefix) {\n"
-          "  return _any_metadata_.PackFrom(message, type_url_prefix);\n"
-          "}\n"
-          "bool UnpackTo(::$proto_ns$::Message* message) const {\n"
-          "  return _any_metadata_.UnpackTo(message);\n"
-          "}\n"
+          "type_url_prefix);\n"
+          "bool UnpackTo(::$proto_ns$::Message* message) const;\n"
           "static bool GetAnyFieldDescriptors(\n"
           "    const ::$proto_ns$::Message& message,\n"
           "    const ::$proto_ns$::FieldDescriptor** type_url_field,\n"
@@ -1293,39 +1260,18 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   }
 
   format(
-      "friend void swap($classname$& a, $classname$& b) {\n"
-      "  a.Swap(&b);\n"
-      "}\n"
-      "inline void Swap($classname$* other) {\n"
-      "  if (other == this) return;\n"
-#ifdef PROTOBUF_FORCE_COPY_IN_SWAP
-      "  if (GetOwningArena() != nullptr &&\n"
-      "      GetOwningArena() == other->GetOwningArena()) {\n"
-#else   // PROTOBUF_FORCE_COPY_IN_SWAP
-      "  if (GetOwningArena() == other->GetOwningArena()) {\n"
-#endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
-      "    InternalSwap(other);\n"
-      "  } else {\n"
-      "    ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);\n"
-      "  }\n"
-      "}\n"
-      "void UnsafeArenaSwap($classname$* other) {\n"
-      "  if (other == this) return;\n"
-      "  $DCHK$(GetOwningArena() == other->GetOwningArena());\n"
-      "  InternalSwap(other);\n"
-      "}\n");
+      "friend void swap($classname$& a, $classname$& b);\n"
+      "void Swap($classname$* other);\n"
+      "void UnsafeArenaSwap($classname$* other);\n"
+      "\n");
 
   format(
       "\n"
       "// implements Message ----------------------------------------------\n"
       "\n"
-      "inline $classname$* New() const final {\n"
-      "  return new $classname$();\n"
-      "}\n"
-      "\n"
-      "$classname$* New(::$proto_ns$::Arena* arena) const final {\n"
-      "  return CreateMaybeMessage<$classname$>(arena);\n"
-      "}\n");
+      "$classname$* New() const final;\n"
+      "$classname$* New(::$proto_ns$::Arena* arena) const final;\n"
+      "\n");
 
   // For instances that derive from Message (rather than MessageLite), some
   // methods are virtual and should be marked as final.
