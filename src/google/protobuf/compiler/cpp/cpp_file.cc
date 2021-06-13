@@ -211,16 +211,8 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
 
     GenerateExtensionIdentifiers(printer);
 
-    format("\n");
-    format(kThickSeparator);
-    format("\n");
-
-    GenerateInlineFunctionDefinitions(printer);
-
-    format(
-        "\n"
-        "// @@protoc_insertion_point(namespace_scope)\n"
-        "\n");
+    // do not gen inline getter and setter
+    // GenerateInlineFunctionDefinitions(printer);
   }
 
   // We need to specialize some templates in the ::google::protobuf namespace:
