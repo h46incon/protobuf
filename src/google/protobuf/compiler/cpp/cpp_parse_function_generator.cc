@@ -291,9 +291,6 @@ void ParseFunctionGenerator::GenerateMethodDecls(io::Printer* printer) {
     format("#endif\n");
     format.Indent();
   }
-  format(
-      "const char* _InternalParse(const char* ptr, "
-      "::$proto_ns$::internal::ParseContext* ctx) final;\n");
 }
 
 void ParseFunctionGenerator::GenerateMethodImpls(io::Printer* printer) {

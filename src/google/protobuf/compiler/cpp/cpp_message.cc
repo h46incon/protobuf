@@ -1313,11 +1313,6 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
 
     parse_function_generator_->GenerateMethodDecls(printer);
 
-    format(
-        "$uint8$* _InternalSerialize(\n"
-        "    $uint8$* target, ::$proto_ns$::io::EpsCopyOutputStream* stream) "
-        "const final;\n");
-
     // DiscardUnknownFields() is implemented in message.cc using reflections. We
     // need to implement this function in generated code for messages.
     if (!UseUnknownFieldSet(descriptor_->file(), options_)) {
@@ -1326,13 +1321,12 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   }
 
   format(
-      "int GetCachedSize() const final { return _cached_size_.Get(); }\n"
+      "int GetCachedSize() const final;\n"
   );
 
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
     if (HasGeneratedMethods(descriptor_->file(), options_)) {
       format(
-          "static const ClassData _class_data_;\n"
           "const ::$proto_ns$::Message::ClassData*"
           "GetClassData() const final;\n"
           "\n");
