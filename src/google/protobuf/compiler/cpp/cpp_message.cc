@@ -742,30 +742,10 @@ void MessageGenerator::GenerateFieldAccessorDeclarations(io::Printer* printer) {
     if (field->is_repeated()) {
       format("$deprecated_attr$int ${1$$name$_size$}$() const$2$\n", field,
              !IsFieldStripped(field, options_) ? ";" : " {__builtin_trap();}");
-      if (!IsFieldStripped(field, options_)) {
-        format(
-            "private:\n"
-            "int ${1$_internal_$name$_size$}$() const;\n"
-            "public:\n",
-            field);
-      }
     } else if (HasHasMethod(field)) {
       format("$deprecated_attr$bool ${1$has_$name$$}$() const$2$\n", field,
              !IsFieldStripped(field, options_) ? ";" : " {__builtin_trap();}");
-      if (!IsFieldStripped(field, options_)) {
-        format(
-            "private:\n"
-            "bool _internal_has_$name$() const;\n"
-            "public:\n");
-      }
     } else if (HasPrivateHasMethod(field)) {
-      if (!IsFieldStripped(field, options_)) {
-        format(
-            "private:\n"
-            "bool ${1$_internal_has_$name$$}$() const;\n"
-            "public:\n",
-            field);
-      }
     }
     format("$deprecated_attr$void ${1$clear_$name$$}$()$2$\n", field,
            !IsFieldStripped(field, options_) ? ";" : "{__builtin_trap();}");
@@ -1171,13 +1151,6 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
       "}\n"
       "\n");
 
-  if (options_.table_driven_serialization) {
-    format(
-        "private:\n"
-        "const void* InternalGetTable() const;\n"
-        "public:\n"
-        "\n");
-  }
 
   if (PublicUnknownFieldsAccessors(descriptor_)) {
     format(
@@ -1374,10 +1347,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
           ""
           "using $superclass$::MergeFrom;\n"
           "void MergeFrom(const $classname$& from);\n"
-          "private:\n"
-          "static void MergeImpl(::$proto_ns$::Message*to, const "
-          "::$proto_ns$::Message&from);\n"
-          "public:\n");
+          );
     } else {
       format(
           "void CheckTypeAndMergeFrom(const ::$proto_ns$::MessageLite& from)"
@@ -1410,36 +1380,8 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   }
 
   format(
-      "int GetCachedSize() const final { return _cached_size_.Get(); }"
-      "\n\nprivate:\n"
-      "void SharedCtor();\n"
-      "void SharedDtor();\n"
-      "void SetCachedSize(int size) const$ full_final$;\n"
-      "void InternalSwap($classname$* other);\n");
-
-  format(
-      // Friend AnyMetadata so that it can call this FullMessageName() method.
-      "friend class ::$proto_ns$::internal::AnyMetadata;\n"
-      "static $1$ FullMessageName() {\n"
-      "  return \"$full_name$\";\n"
-      "}\n",
-      options_.opensource_runtime ? "::PROTOBUF_NAMESPACE_ID::StringPiece"
-                                  : "::StringPiece");
-
-  format(
-      // TODO(gerbens) Make this private! Currently people are deriving from
-      // protos to give access to this constructor, breaking the invariants
-      // we rely on.
-      "protected:\n"
-      "explicit $classname$(::$proto_ns$::Arena* arena,\n"
-      "                     bool is_message_owned = false);\n"
-      "private:\n"
-      "static void ArenaDtor(void* object);\n"
-      "inline void RegisterArenaDtor(::$proto_ns$::Arena* arena);\n");
-
-  format(
-      "public:\n"
-      "\n");
+      "int GetCachedSize() const final { return _cached_size_.Get(); }\n"
+  );
 
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
     if (HasGeneratedMethods(descriptor_->file(), options_)) {
@@ -1501,147 +1443,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
 
   // Generate private members.
   format.Outdent();
-  format(" private:\n");
-  format.Indent();
-  // TODO(seongkim): Remove hack to track field access and remove this class.
-  format("class _Internal;\n");
-
-  for (auto field : FieldRange(descriptor_)) {
-    // set_has_***() generated in all oneofs.
-    if (!field->is_repeated() && !field->options().weak() &&
-        field->real_containing_oneof()) {
-      format("void set_has_$1$();\n", FieldName(field));
-    }
-  }
-  format("\n");
-
-  // Generate oneof function declarations
-  for (auto oneof : OneOfRange(descriptor_)) {
-    format(
-        "inline bool has_$1$() const;\n"
-        "inline void clear_has_$1$();\n\n",
-        oneof->name());
-  }
-
-  if (HasGeneratedMethods(descriptor_->file(), options_) &&
-      !descriptor_->options().message_set_wire_format() &&
-      num_required_fields_ > 1) {
-    format(
-        "// helper for ByteSizeLong()\n"
-        "size_t RequiredFieldsByteSizeFallback() const;\n\n");
-  }
-
-  if (HasGeneratedMethods(descriptor_->file(), options_)) {
-    parse_function_generator_->GenerateDataDecls(printer);
-  }
-
-  // Prepare decls for _cached_size_ and _has_bits_.  Their position in the
-  // output will be determined later.
-
-  bool need_to_emit_cached_size = true;
-  const std::string cached_size_decl =
-      "mutable ::$proto_ns$::internal::CachedSize _cached_size_;\n";
-
-  const size_t sizeof_has_bits = HasBitsSize();
-  const std::string has_bits_decl =
-      sizeof_has_bits == 0 ? ""
-                           : StrCat("::$proto_ns$::internal::HasBits<",
-                                          sizeof_has_bits, "> _has_bits_;\n");
-
-  // To minimize padding, data members are divided into three sections:
-  // (1) members assumed to align to 8 bytes
-  // (2) members corresponding to message fields, re-ordered to optimize
-  //     alignment.
-  // (3) members assumed to align to 4 bytes.
-
-  // Members assumed to align to 8 bytes:
-
-  if (descriptor_->extension_range_count() > 0) {
-    format(
-        "::$proto_ns$::internal::ExtensionSet _extensions_;\n"
-        "\n");
-  }
-
-  format(
-      "template <typename T> friend class "
-      "::$proto_ns$::Arena::InternalHelper;\n"
-      "typedef void InternalArenaConstructable_;\n"
-      "typedef void DestructorSkippable_;\n");
-
-  if (!has_bit_indices_.empty()) {
-    // _has_bits_ is frequently accessed, so to reduce code size and improve
-    // speed, it should be close to the start of the object. Placing
-    // _cached_size_ together with _has_bits_ improves cache locality despite
-    // potential alignment padding.
-    format(has_bits_decl.c_str());
-    format(cached_size_decl.c_str());
-    need_to_emit_cached_size = false;
-  }
-
-  // Field members:
-
-  // Emit some private and static members
-  for (auto field : optimized_order_) {
-    const FieldGenerator& generator = field_generators_.get(field);
-    generator.GenerateStaticMembers(printer);
-    generator.GeneratePrivateMembers(printer);
-  }
-
-  // For each oneof generate a union
-  for (auto oneof : OneOfRange(descriptor_)) {
-    std::string camel_oneof_name = UnderscoresToCamelCase(oneof->name(), true);
-    format("union $1$Union {\n", camel_oneof_name);
-    format.Indent();
-    format(
-        // explicit empty constructor is needed when union contains
-        // ArenaStringPtr members for string fields.
-        "constexpr $1$Union() : _constinit_{} {}\n"
-        "  ::$proto_ns$::internal::ConstantInitialized _constinit_;\n",
-        camel_oneof_name);
-    for (auto field : FieldRange(oneof)) {
-      if (!IsFieldStripped(field, options_)) {
-        field_generators_.get(field).GeneratePrivateMembers(printer);
-      }
-    }
-    format.Outdent();
-    format("} $1$_;\n", oneof->name());
-    for (auto field : FieldRange(oneof)) {
-      if (!IsFieldStripped(field, options_)) {
-        field_generators_.get(field).GenerateStaticMembers(printer);
-      }
-    }
-  }
-
-  // Members assumed to align to 4 bytes:
-
-  if (need_to_emit_cached_size) {
-    format(cached_size_decl.c_str());
-    need_to_emit_cached_size = false;
-  }
-
-  // Generate _oneof_case_.
-  if (descriptor_->real_oneof_decl_count() > 0) {
-    format(
-        "$uint32$ _oneof_case_[$1$];\n"
-        "\n",
-        descriptor_->real_oneof_decl_count());
-  }
-
-  if (num_weak_fields_) {
-    format("::$proto_ns$::internal::WeakFieldMap _weak_field_map_;\n");
-  }
-  // Generate _any_metadata_ for the Any type.
-  if (IsAnyMessage(descriptor_, options_)) {
-    format("::$proto_ns$::internal::AnyMetadata _any_metadata_;\n");
-  }
-
-  // The TableStruct struct needs access to the private parts, in order to
-  // construct the offsets of all members.
-  format("friend struct ::$tablename$;\n");
-
-  format.Outdent();
   format("};");
-  GOOGLE_DCHECK(!need_to_emit_cached_size);
 }  // NOLINT(readability/fn_size)
 
 void MessageGenerator::GenerateInlineMethods(io::Printer* printer) {
