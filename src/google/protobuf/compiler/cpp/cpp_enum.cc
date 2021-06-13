@@ -167,29 +167,16 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer) {
   // type.
   format(
       "template<typename T>\n"
-      "inline const std::string& $classname$_Name(T enum_t_value) {\n"
-      "  static_assert(::std::is_same<T, $classname$>::value ||\n"
-      "    ::std::is_integral<T>::value,\n"
-      "    \"Incorrect type passed to function $classname$_Name.\");\n");
-  if (HasDescriptorMethods(descriptor_->file(), options_)) {
-    format(
-        "  return ::$proto_ns$::internal::NameOfEnum(\n"
-        "    $classname$_descriptor(), enum_t_value);\n");
-  } else {
-    format(
-        "  return $classname$_Name(static_cast<$classname$>(enum_t_value));\n");
-  }
-  format("}\n");
+      "const std::string& $classname$_Name(T enum_t_value);\n"
+      );
+
 
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
     format(
-        "inline bool $classname$_Parse(\n"
+        "bool $classname$_Parse(\n"
         "    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$* "
-        "value) "
-        "{\n"
-        "  return ::$proto_ns$::internal::ParseNamedEnum<$classname$>(\n"
-        "    $classname$_descriptor(), name, value);\n"
-        "}\n");
+        "value);\n"
+    );
   } else {
     format(
         "bool $classname$_Parse(\n"
@@ -228,9 +215,7 @@ void EnumGenerator::GenerateSymbolImports(io::Printer* printer) const {
   }
 
   format(
-      "static inline bool $nested_name$_IsValid(int value) {\n"
-      "  return $classname$_IsValid(value);\n"
-      "}\n"
+      "static bool $nested_name$_IsValid(int value);\n"
       "static constexpr $resolved_name$ ${1$$nested_name$_MIN$}$ =\n"
       "  $classname$_$nested_name$_MIN;\n"
       "static constexpr $resolved_name$ ${1$$nested_name$_MAX$}$ =\n"
@@ -246,25 +231,19 @@ void EnumGenerator::GenerateSymbolImports(io::Printer* printer) const {
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
     format(
         "static inline const ::$proto_ns$::EnumDescriptor*\n"
-        "$nested_name$_descriptor() {\n"
-        "  return $classname$_descriptor();\n"
-        "}\n");
+        "$nested_name$_descriptor();\n"
+        );
   }
 
   format(
       "template<typename T>\n"
-      "static inline const std::string& $nested_name$_Name(T enum_t_value) {\n"
-      "  static_assert(::std::is_same<T, $resolved_name$>::value ||\n"
-      "    ::std::is_integral<T>::value,\n"
-      "    \"Incorrect type passed to function $nested_name$_Name.\");\n"
-      "  return $classname$_Name(enum_t_value);\n"
-      "}\n");
+      "static inline const std::string& $nested_name$_Name(T enum_t_value);\n"
+      );
   format(
       "static inline bool "
       "$nested_name$_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,\n"
-      "    $resolved_name$* value) {\n"
-      "  return $classname$_Parse(name, value);\n"
-      "}\n");
+      "    $resolved_name$* value);\n"
+      );
 }
 
 void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
