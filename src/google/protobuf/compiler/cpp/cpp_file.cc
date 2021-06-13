@@ -178,7 +178,7 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
   format("#define $1$$ dllexport_decl$\n", FileDllExport(file_, options_));
   GenerateMacroUndefs(printer);
 
-  // no need internal
+  // !no need internal
   // For Any support with lite protos, we need to friend AnyMetadata, so we
   // forward-declare it here.
 //  format(
@@ -191,7 +191,8 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
   // also internal codes, do not gen
   //GenerateGlobalStateFunctionDeclarations(printer);
 
-  GenerateForwardDeclarations(printer);
+  // !also internal, not gen
+  // GenerateForwardDeclarations(printer);
 
   {
     NamespaceOpener ns(Namespace(file_, options_), format);
@@ -217,8 +218,9 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
     // GenerateInlineFunctionDefinitions(printer);
   }
 
+  // ! implementation codes, not gen
   // We need to specialize some templates in the ::google::protobuf namespace:
-  GenerateProto2NamespaceEnumSpecializations(printer);
+  // GenerateProto2NamespaceEnumSpecializations(printer);
 
   format(
       "\n"
