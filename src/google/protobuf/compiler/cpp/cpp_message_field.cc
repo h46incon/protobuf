@@ -133,12 +133,6 @@ void MessageFieldGenerator::GenerateAccessorDeclarations(
       "($type$* $name$);\n",
       descriptor_);
   if (!IsFieldStripped(descriptor_, options_)) {
-    format(
-        "private:\n"
-        "const $type$& ${1$_internal_$name$$}$() const;\n"
-        "$type$* ${1$_internal_mutable_$name$$}$();\n"
-        "public:\n",
-        descriptor_);
   }
   format(
       "$deprecated_attr$void "
@@ -688,12 +682,6 @@ void RepeatedMessageFieldGenerator::GenerateAccessorDeclarations(
       "    ${1$mutable_$name$$}$();\n",
       descriptor_);
   if (!IsFieldStripped(descriptor_, options_)) {
-    format(
-        "private:\n"
-        "const $type$& ${1$_internal_$name$$}$(int index) const;\n"
-        "$type$* ${1$_internal_add_$name$$}$();\n"
-        "public:\n",
-        descriptor_);
   }
   format(
       "$deprecated_attr$const $type$& ${1$$name$$}$(int index) const;\n"

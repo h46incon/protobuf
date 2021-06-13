@@ -167,13 +167,6 @@ void StringFieldGenerator::GenerateAccessorDeclarations(
       "$deprecated_attr$void ${1$set_allocated_$name$$}$(std::string* "
       "$name$);\n",
       descriptor_);
-  format(
-      "private:\n"
-      "const std::string& _internal_$name$() const;\n"
-      "inline PROTOBUF_ALWAYS_INLINE void "
-      "_internal_set_$name$(const std::string& value);\n"
-      "std::string* _internal_mutable_$name$();\n"
-      "public:\n");
 
   if (unknown_ctype) {
     format.Outdent();
@@ -573,11 +566,7 @@ void RepeatedStringFieldGenerator::GenerateAccessorDeclarations(
       "const;\n"
       "$deprecated_attr$::$proto_ns$::RepeatedPtrField<std::string>* "
       "${1$mutable_$name$$}$()"
-      ";\n"
-      "private:\n"
-      "const std::string& ${1$_internal_$name$$}$(int index) const;\n"
-      "std::string* _internal_add_$name$();\n"
-      "public:\n",
+      ";\n",
       descriptor_);
 
   if (unknown_ctype) {

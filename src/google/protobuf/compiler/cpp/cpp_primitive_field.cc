@@ -137,11 +137,7 @@ void PrimitiveFieldGenerator::GenerateAccessorDeclarations(
   Formatter format(printer, variables_);
   format(
       "$deprecated_attr$$type$ ${1$$name$$}$() const;\n"
-      "$deprecated_attr$void ${1$set_$name$$}$($type$ value);\n"
-      "private:\n"
-      "$type$ ${1$_internal_$name$$}$() const;\n"
-      "void ${1$_internal_set_$name$$}$($type$ value);\n"
-      "public:\n",
+      "$deprecated_attr$void ${1$set_$name$$}$($type$ value);\n",
       descriptor_);
 }
 
@@ -312,14 +308,6 @@ void RepeatedPrimitiveFieldGenerator::GenerateAccessorDeclarations(
     io::Printer* printer) const {
   Formatter format(printer, variables_);
   format(
-      "private:\n"
-      "$type$ ${1$_internal_$name$$}$(int index) const;\n"
-      "const ::$proto_ns$::RepeatedField< $type$ >&\n"
-      "    ${1$_internal_$name$$}$() const;\n"
-      "void ${1$_internal_add_$name$$}$($type$ value);\n"
-      "::$proto_ns$::RepeatedField< $type$ >*\n"
-      "    ${1$_internal_mutable_$name$$}$();\n"
-      "public:\n"
       "$deprecated_attr$$type$ ${1$$name$$}$(int index) const;\n"
       "$deprecated_attr$void ${1$set_$name$$}$(int index, $type$ value);\n"
       "$deprecated_attr$void ${1$add_$name$$}$($type$ value);\n"

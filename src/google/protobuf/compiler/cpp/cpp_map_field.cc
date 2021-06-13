@@ -106,12 +106,6 @@ void MapFieldGenerator::GenerateAccessorDeclarations(
     io::Printer* printer) const {
   Formatter format(printer, variables_);
   format(
-      "private:\n"
-      "const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
-      "    ${1$_internal_$name$$}$() const;\n"
-      "::$proto_ns$::Map< $key_cpp$, $val_cpp$ >*\n"
-      "    ${1$_internal_mutable_$name$$}$();\n"
-      "public:\n"
       "$deprecated_attr$const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
       "    ${1$$name$$}$() const;\n"
       "$deprecated_attr$::$proto_ns$::Map< $key_cpp$, $val_cpp$ >*\n"
