@@ -1126,7 +1126,6 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
     format("$classname$();\n");
   }
   format(
-      "~$classname$() override;\n"
       "$classname$(const $classname$& from);\n"
       "$classname$($classname$&& from) noexcept;\n"
 
@@ -1265,9 +1264,6 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   format(
       "\n"
       "// implements Message ----------------------------------------------\n"
-      "\n"
-      "$classname$* New() const final;\n"
-      "$classname$* New(::$proto_ns$::Arena* arena) const final;\n"
       "\n");
 
   // For instances that derive from Message (rather than MessageLite), some
@@ -1277,60 +1273,15 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
                                : "");
 
   if (HasGeneratedMethods(descriptor_->file(), options_)) {
-    if (HasDescriptorMethods(descriptor_->file(), options_)) {
-      format(
-          // Use Message's built-in MergeFrom and CopyFrom when the passed-in
-          // argument is a generic Message instance, and only define the custom
-          // MergeFrom and CopyFrom instances when the source of the merge/copy
-          // is known to be the same class as the destination.
-          // TODO(jorg): Define MergeFrom in terms of MergeImpl, rather than the
-          // other way around, to save even more code size.
-          "using $superclass$::CopyFrom;\n"
-          "void CopyFrom(const $classname$& from);\n"
-          ""
-          "using $superclass$::MergeFrom;\n"
-          "void MergeFrom(const $classname$& from);\n"
-          );
-    } else {
-      format(
-          "void CheckTypeAndMergeFrom(const ::$proto_ns$::MessageLite& from)"
-          "  final;\n"
-          "void CopyFrom(const $classname$& from);\n"
-          "void MergeFrom(const $classname$& from);\n");
-    }
 
     format.Set("clear_final",
                ShouldMarkClearAsFinal(descriptor_, options_) ? "final" : "");
 
-    format(
-        "PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear()$ clear_final$;\n"
-        "bool IsInitialized() const final;\n"
-        "\n"
-        "size_t ByteSizeLong() const final;\n");
-
     parse_function_generator_->GenerateMethodDecls(printer);
-
-    // DiscardUnknownFields() is implemented in message.cc using reflections. We
-    // need to implement this function in generated code for messages.
-    if (!UseUnknownFieldSet(descriptor_->file(), options_)) {
-      format("void DiscardUnknownFields()$ full_final$;\n");
-    }
   }
 
-  format(
-      "int GetCachedSize() const final;\n"
-  );
 
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
-    if (HasGeneratedMethods(descriptor_->file(), options_)) {
-      format(
-          "const ::$proto_ns$::Message::ClassData*"
-          "GetClassData() const final;\n"
-          "\n");
-    }
-    format(
-        "::$proto_ns$::Metadata GetMetadata() const final;\n"
-        "\n");
   } else {
     format(
         "std::string GetTypeName() const final;\n"
