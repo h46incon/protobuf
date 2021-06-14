@@ -1108,8 +1108,7 @@ void FileGenerator::GenerateTopHeaderGuard(io::Printer* printer, bool pb_h) {
 
 void FileGenerator::GenerateBottomHeaderGuard(io::Printer* printer, bool pb_h) {
   Formatter format(printer, variables_);
-  format("#endif  // $GOOGLE_PROTOBUF$_INCLUDED_$1$\n",
-         IncludeGuard(file_, pb_h, options_));
+  format("#endif");
 }
 
 void FileGenerator::GenerateLibraryIncludes(io::Printer* printer) {

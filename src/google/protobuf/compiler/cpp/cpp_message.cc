@@ -1127,9 +1127,6 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   }
   format(
       "~$classname$() override;\n"
-      "explicit constexpr "
-      "$classname$(::$proto_ns$::internal::ConstantInitialized);\n"
-      "\n"
       "$classname$(const $classname$& from);\n"
       "$classname$($classname$&& from) noexcept;\n"
 
