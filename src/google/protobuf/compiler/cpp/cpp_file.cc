@@ -1096,7 +1096,6 @@ void FileGenerator::GenerateTopHeaderGuard(io::Printer* printer, bool pb_h) {
       "#ifndef $1$\n"
       "#define $1$\n"
       "\n"
-      "#include <limits>\n"
       "#include <string>\n",
       IncludeGuard(file_, pb_h, options_));
   if (!options_.opensource_runtime && !enum_generators_.empty()) {
@@ -1138,7 +1137,6 @@ void FileGenerator::GenerateLibraryIncludes(io::Printer* printer) {
     IncludeFileAndExport("net/proto2/public/map.h", printer);
     if (HasDescriptorMethods(file_, options_)) {
       IncludeFile("net/proto2/public/map_entry.h", printer);
-      IncludeFile("net/proto2/public/map_field_inl.h", printer);
     } else {
       IncludeFile("net/proto2/public/map_entry_lite.h", printer);
       IncludeFile("net/proto2/public/map_field_lite.h", printer);
