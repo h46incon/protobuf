@@ -162,7 +162,7 @@ void StringFieldGenerator::GenerateAccessorDeclarations(
       descriptor_);
   format(
       "$deprecated_attr$std::string* ${1$mutable_$name$$}$();\n"
-      "PROTOBUF_MUST_USE_RESULT $deprecated_attr$std::string* "
+      "$deprecated_attr$std::string* "
       "${1$$release_name$$}$();\n"
       "$deprecated_attr$void ${1$set_allocated_$name$$}$(std::string* "
       "$name$);\n",
