@@ -60,7 +60,7 @@ namespace compiler {
 namespace cpp {
 
 inline std::string ProtobufNamespace(const Options& /* options */) {
-  return "PROTOBUF_NAMESPACE_ID";
+  return "google::protobuf";
 }
 
 inline std::string MacroPrefix(const Options& options) {
@@ -770,7 +770,7 @@ class PROTOC_EXPORT NamespaceOpener {
     }
     for (auto it = name_stack_.crbegin();
          it != name_stack_.crend() - common_idx; ++it) {
-      if (*it == "PROTOBUF_NAMESPACE_ID") {
+      if (*it == "google::protobuf") {
         printer_->Print("PROTOBUF_NAMESPACE_CLOSE\n");
       } else {
         printer_->Print("}  // namespace $ns$\n", "ns", *it);
@@ -778,7 +778,7 @@ class PROTOC_EXPORT NamespaceOpener {
     }
     name_stack_.swap(new_stack_);
     for (size_t i = common_idx; i < name_stack_.size(); ++i) {
-      if (name_stack_[i] == "PROTOBUF_NAMESPACE_ID") {
+      if (name_stack_[i] == "google::protobuf") {
         printer_->Print("PROTOBUF_NAMESPACE_OPEN\n");
       } else {
         printer_->Print("namespace $ns$ {\n", "ns", name_stack_[i]);

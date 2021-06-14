@@ -171,7 +171,7 @@ static std::unordered_set<std::string>& kKeywords = *MakeKeywordsMap();
 
 std::string IntTypeName(const Options& options, const std::string& type) {
   if (options.opensource_runtime) {
-    return "::PROTOBUF_NAMESPACE_ID::" + type;
+    return "::google::protobuf::" + type;
   } else {
     return "::" + type;
   }
@@ -376,7 +376,7 @@ std::string Namespace(const FileDescriptor* d, const Options& options) {
     ret = StringReplace(ret,
                         "::google::"
                         "protobuf",
-                        "PROTOBUF_NAMESPACE_ID", false);
+                        "google::protobuf", false);
   }
   return ret;
 }
