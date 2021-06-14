@@ -1206,7 +1206,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
       format(
           "bool PackFrom(const ::$proto_ns$::Message& message);\n"
           "bool PackFrom(const ::$proto_ns$::Message& message,\n"
-          "              ::google::protobuf::ConstStringParam "
+          "              const std::string& "
           "type_url_prefix);\n"
           "bool UnpackTo(::$proto_ns$::Message* message) const;\n"
           "static bool GetAnyFieldDescriptors(\n"
@@ -1223,7 +1223,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
           "!std::is_convertible<T, const ::$proto_ns$::Message&>"
           "::value>::type>\n"
           "bool PackFrom(const T& message,\n"
-          "              ::google::protobuf::ConstStringParam "
+          "              const std::string& "
           "type_url_prefix) {\n"
           "  return _any_metadata_.PackFrom<T>(message, type_url_prefix);"
           "}\n"
@@ -1241,7 +1241,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
           "}\n"
           "template <typename T>\n"
           "bool PackFrom(const T& message,\n"
-          "              ::google::protobuf::ConstStringParam "
+          "              const std::string& "
           "type_url_prefix) {\n"
           "  return _any_metadata_.PackFrom(message, type_url_prefix);\n"
           "}\n"
@@ -1254,7 +1254,7 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
         "template<typename T> bool Is() const {\n"
         "  return _any_metadata_.Is<T>();\n"
         "}\n"
-        "static bool ParseAnyTypeUrl(::google::protobuf::ConstStringParam "
+        "static bool ParseAnyTypeUrl(const std::string& "
         "type_url,\n"
         "                            std::string* full_type_name);\n");
   }
@@ -1722,7 +1722,7 @@ void MessageGenerator::GenerateClassMethods(io::Printer* printer) {
     }
     format(
         "bool $classname$::ParseAnyTypeUrl(\n"
-        "    ::google::protobuf::ConstStringParam type_url,\n"
+        "    const std::string& type_url,\n"
         "    std::string* full_type_name) {\n"
         "  return ::$proto_ns$::internal::ParseAnyTypeUrl(type_url,\n"
         "                                             full_type_name);\n"

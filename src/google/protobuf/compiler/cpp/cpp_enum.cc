@@ -174,13 +174,13 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer) {
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
     format(
         "bool $classname$_Parse(\n"
-        "    ::google::protobuf::ConstStringParam name, $classname$* "
+        "    const std::string& name, $classname$* "
         "value);\n"
     );
   } else {
     format(
         "bool $classname$_Parse(\n"
-        "    ::google::protobuf::ConstStringParam name, $classname$* "
+        "    const std::string& name, $classname$* "
         "value);\n");
   }
 }
@@ -241,7 +241,7 @@ void EnumGenerator::GenerateSymbolImports(io::Printer* printer) const {
       );
   format(
       "static inline bool "
-      "$nested_name$_Parse(::google::protobuf::ConstStringParam name,\n"
+      "$nested_name$_Parse(const std::string& name,\n"
       "    $resolved_name$* value);\n"
       );
 }
@@ -370,7 +370,7 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
         CountUniqueValues(descriptor_));
     format(
         "bool $classname$_Parse(\n"
-        "    ::google::protobuf::ConstStringParam name, $classname$* "
+        "    const std::string& name, $classname$* "
         "value) "
         "{\n"
         "  int int_value;\n"
