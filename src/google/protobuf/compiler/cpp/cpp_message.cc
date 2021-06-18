@@ -1193,8 +1193,16 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
     parse_function_generator_->GenerateMethodDecls(printer);
   }
 
+  // pure virtual function, must declare, otherwise will break code completion in some CLion version
+  format(
+      "int GetCachedSize() const final;\n"
+  );
 
   if (HasDescriptorMethods(descriptor_->file(), options_)) {
+  	// pure virtual function, must declare, otherwise will break code completion in some CLion version
+  	format(
+  			"::$proto_ns$::Metadata GetMetadata() const final;\n"
+			  "\n");
   } else {
     format(
         "std::string GetTypeName() const final;\n"
