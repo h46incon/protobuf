@@ -190,7 +190,7 @@ void FileGenerator::GenerateHeader(io::Printer* printer) {
   //GenerateGlobalStateFunctionDeclarations(printer);
 
   // !also internal, not gen
-  // GenerateForwardDeclarations(printer);
+   GenerateForwardDeclarations(printer);
 
   {
     NamespaceOpener ns(Namespace(file_, options_), format);
@@ -1006,10 +1006,12 @@ class FileGenerator::ForwardDeclarations {
       const Descriptor* class_desc = p.second;
       format(
           "class ${1$$2$$}$;\n"
-          "struct $3$;\n"
-          "$dllexport_decl $extern $3$ $4$;\n",
-          class_desc, classname, DefaultInstanceType(class_desc, options),
-          DefaultInstanceName(class_desc, options));
+          // "struct $3$;\n"
+          // "$dllexport_decl $extern $3$ $4$;\n"
+          , class_desc, classname
+          // DefaultInstanceType(class_desc, options),
+          // DefaultInstanceName(class_desc, options)
+          );
     }
   }
 
@@ -1079,11 +1081,11 @@ void FileGenerator::GenerateForwardDeclarations(io::Printer* printer) {
       pair.second.Print(format, options_);
     }
   }
-  format("PROTOBUF_NAMESPACE_OPEN\n");
-  for (const auto& pair : decls) {
-    pair.second.PrintTopLevelDecl(format, options_);
-  }
-  format("PROTOBUF_NAMESPACE_CLOSE\n");
+//  format("PROTOBUF_NAMESPACE_OPEN\n");
+//  for (const auto& pair : decls) {
+//    pair.second.PrintTopLevelDecl(format, options_);
+//  }
+//  format("PROTOBUF_NAMESPACE_CLOSE\n");
 }
 
 void FileGenerator::GenerateTopHeaderGuard(io::Printer* printer, bool pb_h) {
