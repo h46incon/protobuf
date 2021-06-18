@@ -1173,6 +1173,10 @@ void MessageGenerator::GenerateClassDefinition(io::Printer* printer) {
   format(
       "\n"
       "// implements Message ----------------------------------------------\n"
+	  "\n"
+	  // override methods, but return type different from parent
+	  "$classname$* New() const final;\n"
+	  "$classname$* New(::$proto_ns$::Arena* arena) const final;\n"
       "\n");
 
   // For instances that derive from Message (rather than MessageLite), some
